@@ -23,6 +23,8 @@ import com.BDD.blue_whale.service.FileStorageService;
 
 import test.comtradem_csv_0_1.comtradeM_CSV;
 import test.comtradex_csv_0_1.comtradeX_CSV;
+import test.faostat_0_1.faostat;
+import test.faostat_tableau_croise_dynamique_0_1.faostat_tableau_croise_dynamique;
 import test.resourcetradeearth_0_1.resourcetradeearth;
 
 @RestController
@@ -79,8 +81,24 @@ public class FileController {
 		talendJobM.runJob(context2);
 	}
 	
-	
-	
+	@PostMapping("/upload/faostat")
+	public void faostat(@RequestParam("file") MultipartFile file) {
+		
+		//convert table with tableau croisee dynamique
+		faostat_tableau_croise_dynamique talendJob = new faostat_tableau_croise_dynamique();
+		String faostat="uploads\\\\\\\\"+ file.getOriginalFilename();
+		String outfaostat="target\\outfaostat.csv";
+		String [] context=new String[] {"--context_param resource_file_faostat="+faostat, "--context_param resource_file_outfaostat="+outfaostat};
+		talendJob.runJob(context);
+		
+		//copy data to database
+		faostat talendJob2 = new faostat();
+		String faostat2=outfaostat;
+		String [] context2=new String[] {"--context_param resource_file_faostat2="+faostat2};
+		
+		talendJob2.runJob(context2);
+		
+	}
 	
 	
 	 @GetMapping("/files")
