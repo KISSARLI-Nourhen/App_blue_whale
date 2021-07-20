@@ -28,15 +28,6 @@ public class FileStorageServiceImpl implements FileStorageService{
 		}
 		
 	}
-//changement du nom original
-	/*@Override
-	public void save(MultipartFile file) {
-	    try {
-	      Files.copy(file.getInputStream(), this.root.resolve(filename),StandardCopyOption.REPLACE_EXISTING);
-	    } catch (Exception e) {
-	      throw new RuntimeException("Could not store the file. Error: " + e.getMessage());
-	    }
-	  }*/
 	
 	
 	 @Override

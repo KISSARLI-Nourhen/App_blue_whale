@@ -8,6 +8,7 @@ import org.springframework.core.io.Resource;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.CrossOrigin;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -27,7 +28,9 @@ import test.faostat_0_1.faostat;
 import test.faostat_tableau_croise_dynamique_0_1.faostat_tableau_croise_dynamique;
 import test.resourcetradeearth_0_1.resourcetradeearth;
 
+
 @RestController
+@CrossOrigin("*")
 public class FileController {
 	
 	@Autowired
