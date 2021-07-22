@@ -17,8 +17,8 @@ public class FileUploadExceptionAdvice extends ResponseEntityExceptionHandler  {
 	    return ResponseEntity.status(HttpStatus.EXPECTATION_FAILED).body(new ResponseMessage("File too large!"));
 	  }
 	
-	/*@ExceptionHandler(WrongFileException.class)
-	public ResponseEntity<ResponseMessage> WrongFileException() {
-	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage("Your file appears not to be a valid document!"));
-	  }*/
+	@ExceptionHandler(ErrorFileException.class)
+	public ResponseEntity<ResponseMessage> exceptionFile(ErrorFileException exception) {
+	    return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage("Your file is not a valid document!"));
+	  }
 }

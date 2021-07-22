@@ -52,24 +52,30 @@ public class FileController {
 	@PostMapping("/upload/resourcetradeearth")
 	public ResponseEntity<ResponseMessage> resourcetradeearth(@RequestParam("file") MultipartFile file) {
 		String message ="";
-		try {
+		String[] args = {};
+		
 			resourcetradeearth talendJob = new resourcetradeearth();
 			String resourcetradeearth="uploads\\\\\\\\"+ file.getOriginalFilename();
 			String [] context=new String[] {"--context_param resource_file_resourcetradeearth="+resourcetradeearth};
 			talendJob.runJob(context);
 			
-			message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
-			return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+			int exitCode = talendJob.runJobInTOS(args);
 			
-		} catch (Exception e) {
-			 message = "Could not upload the file: " + file.getOriginalFilename() + " to the database !" ;
-		      return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
-		}
-		
+			if (exitCode == 0) {
+				message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
+				return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+			} else {
+				message = "Could not upload the file: " + file.getOriginalFilename() + " to the database !" ;
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
+			}
+			
 	}
 	
 	@PostMapping("/upload/comtrade")
-	public void comtrade(@RequestParam("file") MultipartFile file) {
+	public ResponseEntity<ResponseMessage> comtrade(@RequestParam("file") MultipartFile file) {
+		
+		String message ="";
+		String[] args = {};
 		
 		//jar for file with X
 		comtradeX_CSV talendJobX = new comtradeX_CSV(); 
@@ -82,10 +88,25 @@ public class FileController {
 		String resource_file_comtradeM="uploads\\\\\\\\"+ file.getOriginalFilename();
 		String [] context2=new String[] {"--context_param resource_file_comtradeM="+resource_file_comtradeM};
 		talendJobM.runJob(context2);
+		
+		int exitCode1 = talendJobX.runJobInTOS(args);
+		int exitCode2 = talendJobM.runJobInTOS(args);
+		
+		if (exitCode1 == 0 && exitCode2 == 0) {
+			message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
+			return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+		} else {
+			message = "Could not upload the file: " + file.getOriginalFilename() + " to the database !" ;
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
+		}
 	}
 	
 	@PostMapping("/upload/faostat")
-	public void faostat(@RequestParam("file") MultipartFile file) {
+	public ResponseEntity<ResponseMessage> faostat(@RequestParam("file") MultipartFile file) {
+		
+
+		String message ="";
+		String[] args = {};
 		
 		//convert table with tableau croisee dynamique
 		faostat_tableau_croise_dynamique talendJob = new faostat_tableau_croise_dynamique();
@@ -100,6 +121,17 @@ public class FileController {
 		String [] context2=new String[] {"--context_param resource_file_faostat2="+faostat2};
 		
 		talendJob2.runJob(context2);
+		
+		int exitCode1 = talendJob.runJobInTOS(args);
+		int exitCode2 = talendJob2.runJobInTOS(args);
+		
+		if (exitCode1 == 0 && exitCode2 == 0) {
+			message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
+			return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+		} else {
+			//message = "Could not upload the file: " + file.getOriginalFilename() + " to the database !" ;
+			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
+		}
 		
 	}
 	
