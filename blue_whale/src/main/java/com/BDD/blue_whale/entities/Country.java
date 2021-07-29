@@ -27,7 +27,7 @@ public class Country implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	@Id
+	@Id @GeneratedValue(strategy = GenerationType.AUTO)
 	private Long country_id;
 	private String iso2;
 	private String iso3;

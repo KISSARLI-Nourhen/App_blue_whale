@@ -1,8 +1,11 @@
 package com.BDD.blue_whale.entities;
 
 import java.io.Serializable;
+import java.security.Timestamp;
 
 import javax.persistence.Entity;
+import javax.persistence.GeneratedValue;
+import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.JoinColumn;
 import javax.persistence.ManyToOne;
@@ -25,7 +28,7 @@ public class Import_export implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	@Id
+	@Id @GeneratedValue(strategy= GenerationType.IDENTITY)
 	private Long id;
 	private String trade_flow;
 	private Integer years;
@@ -34,6 +37,7 @@ public class Import_export implements Serializable{
 	private String unit_value;
 	private Float netweight;
 	private String unit_netweight;
+	private Timestamp date_modif;
 	
 	@ManyToOne
 	//@JsonProperty(access=Access.WRITE_ONLY)

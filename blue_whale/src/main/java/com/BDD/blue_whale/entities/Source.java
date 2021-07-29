@@ -26,7 +26,7 @@ public class Source implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	@Id
+	@Id @GeneratedValue(strategy= GenerationType.IDENTITY)
 	private Long source_id;
 	private String source_name;
 	private String source_url;

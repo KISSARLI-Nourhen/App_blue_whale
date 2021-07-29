@@ -1,6 +1,7 @@
 package com.BDD.blue_whale.entities;
 
 import java.io.Serializable;
+import java.security.Timestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -27,7 +28,7 @@ public class Faostat implements Serializable{
 	 * 
 	 */
 	private static final long serialVersionUID = 1L;
-	@Id
+	@Id @GeneratedValue(strategy= GenerationType.IDENTITY)
 	private Long id;
 	private int year;
 	private int area_harvested;
@@ -36,6 +37,7 @@ public class Faostat implements Serializable{
 	private String unit_yield;
 	private int production;
 	private String unit_production;
+	private Timestamp date_modif;
 	
 	@ManyToOne
 	//@JsonProperty(access=Access.WRITE_ONLY)

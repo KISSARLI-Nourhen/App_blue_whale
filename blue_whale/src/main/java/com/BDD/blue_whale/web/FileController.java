@@ -49,17 +49,20 @@ public class FileController {
 	    }
 	}
 	
+	//upload files with data refused or accepted
+	
+	
 	@PostMapping("/upload/resourcetradeearth")
 	public ResponseEntity<ResponseMessage> resourcetradeearth(@RequestParam("file") MultipartFile file) {
 		String message ="";
-		String[] args = {};
+		//String[] args = {};
 		
 			resourcetradeearth talendJob = new resourcetradeearth();
 			String resourcetradeearth="uploads\\\\\\\\"+ file.getOriginalFilename();
 			String [] context=new String[] {"--context_param resource_file_resourcetradeearth="+resourcetradeearth};
-			talendJob.runJob(context);
+			//talendJob.runJob(context);
+			int exitCode = talendJob.runJobInTOS(context);
 			
-			int exitCode = talendJob.runJobInTOS(args);
 			
 			if (exitCode == 0) {
 				message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
@@ -75,22 +78,24 @@ public class FileController {
 	public ResponseEntity<ResponseMessage> comtrade(@RequestParam("file") MultipartFile file) {
 		
 		String message ="";
-		String[] args = {};
+		//String[] args = {};
 		
 		//jar for file with X
 		comtradeX_CSV talendJobX = new comtradeX_CSV(); 
 		String resource_file_comtradeX="uploads\\\\\\\\"+ file.getOriginalFilename();
 		String [] context=new String[] {"--context_param resource_file_comtradeX="+resource_file_comtradeX};
-		talendJobX.runJob(context);
+		//talendJobX.runJob(context);
+		int exitCode1 = talendJobX.runJobInTOS(context);
+		
 		
 		//jar for file with X
 		comtradeM_CSV talendJobM = new comtradeM_CSV(); 
 		String resource_file_comtradeM="uploads\\\\\\\\"+ file.getOriginalFilename();
 		String [] context2=new String[] {"--context_param resource_file_comtradeM="+resource_file_comtradeM};
-		talendJobM.runJob(context2);
+		//talendJobM.runJob(context2);
+		int exitCode2 = talendJobM.runJobInTOS(context2);
 		
-		int exitCode1 = talendJobX.runJobInTOS(args);
-		int exitCode2 = talendJobM.runJobInTOS(args);
+		
 		
 		if (exitCode1 == 0 && exitCode2 == 0) {
 			message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
@@ -106,24 +111,28 @@ public class FileController {
 		
 
 		String message ="";
-		String[] args = {};
+		//String[] args = {};
 		
 		//convert table with tableau croisee dynamique
 		faostat_tableau_croise_dynamique talendJob = new faostat_tableau_croise_dynamique();
-		String faostat="uploads\\\\\\\\"+ file.getOriginalFilename();
-		String outfaostat="target\\outfaostat.csv";
+		String faostat="uploads\\\\\\\\"+ file.getOriginalFilename(); //input file
+		String outfaostat="target\\outfaostat.csv"; //output file from faostat tableau croise dynamique
 		String [] context=new String[] {"--context_param resource_file_faostat="+faostat, "--context_param resource_file_outfaostat="+outfaostat};
-		talendJob.runJob(context);
+		//talendJob.runJob(context);
+		int exitCode1 = talendJob.runJobInTOS(context);
+		
 		
 		//copy data to database
 		faostat talendJob2 = new faostat();
 		String faostat2=outfaostat;
-		String [] context2=new String[] {"--context_param resource_file_faostat2="+faostat2};
+		String DataAccepted = "output_Data\\\\faostat_DataAccepted.csv";
+		String DataRefused ="output_Data\\\\\\\\faostat_DataRefused.csv";
+		String [] context2=new String[] {"--context_param resource_file_faostat2="+faostat2, "--context_param resource_file_DataAccepted="+DataAccepted,
+				"--context_param resource_file_DataRefused="+DataRefused};
+		//talendJob2.runJob(context2);
+		int exitCode2 = talendJob2.runJobInTOS(context2);
 		
-		talendJob2.runJob(context2);
 		
-		int exitCode1 = talendJob.runJobInTOS(args);
-		int exitCode2 = talendJob2.runJobInTOS(args);
 		
 		if (exitCode1 == 0 && exitCode2 == 0) {
 			message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
@@ -148,16 +157,43 @@ public class FileController {
 
 	    return ResponseEntity.status(HttpStatus.OK).body(fileInfos);
 	  }
-
-	  @GetMapping("/files/{filename:.+}")
+	 
+	 @GetMapping("/files/{filename:.+}")
 	  @ResponseBody
 	  public ResponseEntity<Resource> getFile(@PathVariable String filename) {
 	    Resource file = filestorageService.load(filename);
 	    return ResponseEntity.ok()
 	        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
 	  }
+	 
+	 @GetMapping("/files/outputData")
+	  public ResponseEntity<List<FileInfo>> getListOutPutData() {
+	    List<FileInfo> fileInfos = filestorageService.loadAllOutPutData().map(path -> {
+	      String filename = path.getFileName().toString();
+	      String url = MvcUriComponentsBuilder
+	          .fromMethodName(FileController.class, "getFileOutputData", path.getFileName().toString()).build().toString();
+
+	      return new FileInfo(filename, url);
+	    }).collect(Collectors.toList());
+
+	    return ResponseEntity.status(HttpStatus.OK).body(fileInfos);
+	  }
 	  
+	  @GetMapping("/file/{filename:.+}")
+	  @ResponseBody
+	  public ResponseEntity<Resource> getFileOutputData(@PathVariable String filename) {
+	    Resource file = filestorageService.loadOutPutData(filename);
+	    return ResponseEntity.ok()
+	        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
+	  }
 	  
+	  @GetMapping("/readOutPutData")
+	  public ResponseEntity<String> getRefusedData(){
+		  
+		 String refusedJson= filestorageService.getRefusedData();
+		  
+		 return new ResponseEntity<>(refusedJson, HttpStatus.OK);
+	  }
 	
 	
 }
