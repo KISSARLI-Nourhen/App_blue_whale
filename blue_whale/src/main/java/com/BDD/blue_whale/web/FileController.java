@@ -1,5 +1,6 @@
 package com.BDD.blue_whale.web;
 
+import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -109,39 +110,62 @@ public class FileController {
 	@PostMapping("/upload/faostat")
 	public ResponseEntity<ResponseMessage> faostat(@RequestParam("file") MultipartFile file) {
 		
-
 		String message ="";
-		//String[] args = {};
-		
-		//convert table with tableau croisee dynamique
-		faostat_tableau_croise_dynamique talendJob = new faostat_tableau_croise_dynamique();
-		String faostat="uploads\\\\\\\\"+ file.getOriginalFilename(); //input file
-		String outfaostat="target\\outfaostat.csv"; //output file from faostat tableau croise dynamique
-		String [] context=new String[] {"--context_param resource_file_faostat="+faostat, "--context_param resource_file_outfaostat="+outfaostat};
-		//talendJob.runJob(context);
-		int exitCode1 = talendJob.runJobInTOS(context);
-		
-		
-		//copy data to database
-		faostat talendJob2 = new faostat();
-		String faostat2=outfaostat;
-		String DataAccepted = "output_Data\\\\faostat_DataAccepted.csv";
-		String DataRefused ="output_Data\\\\\\\\faostat_DataRefused.csv";
-		String [] context2=new String[] {"--context_param resource_file_faostat2="+faostat2, "--context_param resource_file_DataAccepted="+DataAccepted,
-				"--context_param resource_file_DataRefused="+DataRefused};
-		//talendJob2.runJob(context2);
-		int exitCode2 = talendJob2.runJobInTOS(context2);
-		
-		
-		
-		if (exitCode1 == 0 && exitCode2 == 0) {
-			message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
-			return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
-		} else {
-			//message = "Could not upload the file: " + file.getOriginalFilename() + " to the database !" ;
-			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
+		if(!file.getOriginalFilename().endsWith(".csv")) {
+			//String message ="";
+			//String[] args = {};
+			
+			//convert table with tableau croisee dynamique
+			faostat_tableau_croise_dynamique talendJob = new faostat_tableau_croise_dynamique();
+			String faostat="uploads\\\\\\\\"+ file.getOriginalFilename(); //input file
+			String outfaostat="target\\outfaostat.csv"; //output file from faostat tableau croise dynamique
+			String [] context=new String[] {"--context_param resource_file_faostat="+faostat, "--context_param resource_file_outfaostat="+outfaostat};
+			//talendJob.runJob(context);
+			int exitCode1 = talendJob.runJobInTOS(context);
+			
+			
+			//copy data to database
+			faostat talendJob2 = new faostat();
+			String faostat2=outfaostat;
+			String DataAccepted = "output_Data\\\\faostat_DataAccepted.csv";
+			String DataRefused ="output_Data\\\\\\\\faostat_DataRefused.csv";
+			String [] context2=new String[] {"--context_param resource_file_faostat2="+faostat2, "--context_param resource_file_DataAccepted="+DataAccepted,
+					"--context_param resource_file_DataRefused="+DataRefused};
+			//talendJob2.runJob(context2);
+			int exitCode2 = talendJob2.runJobInTOS(context2);
+			
+			
+			
+			if (exitCode1 == 0 && exitCode2 == 0) {
+				message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
+				return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+			} else {
+				//message = "Could not upload the file: " + file.getOriginalFilename() + " to the database !" ;
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
+			} 
+		} 
+		else {
+			
+			//copy data to database
+			faostat talendJob2 = new faostat();
+			String faostat2="uploads\\\\\\\\"+ file.getOriginalFilename();
+			String DataAccepted = "output_Data\\\\faostat_DataAccepted.csv";
+			String DataRefused ="output_Data\\\\\\\\faostat_DataRefused.csv";
+			String [] context2=new String[] {"--context_param resource_file_faostat2="+faostat2, "--context_param resource_file_DataAccepted="+DataAccepted,
+					"--context_param resource_file_DataRefused="+DataRefused};
+			//talendJob2.runJob(context2);
+			int exitCode2 = talendJob2.runJobInTOS(context2);
+			
+			
+			
+			if (exitCode2 == 0) {
+				message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
+				return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
+			} else {
+				//message = "Could not upload the file: " + file.getOriginalFilename() + " to the database !" ;
+				return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
+			} 
 		}
-		
 	}
 	
 	

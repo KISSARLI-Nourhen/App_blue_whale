@@ -24,6 +24,7 @@ import com.BDD.blue_whale.repositories.FaostatRepository;
 import com.BDD.blue_whale.repositories.Import_exportRepository;
 import com.BDD.blue_whale.repositories.ProductRepository;
 import com.BDD.blue_whale.service.CountryService;
+import com.BDD.blue_whale.service.ProductService;
 
 
 
@@ -45,14 +46,47 @@ public class Blue_whaleRestController {
 	@Autowired
 	private CountryService countryService;
 	
-	//product
+	@Autowired 
+	private ProductService productService;
+	
+
+	/**********************************************************************************
+	 * * product
+	 **********************************************************************************/
+	
 	@GetMapping("/listproducts")
 	public List<Product> products(){
 		return productRepository.findAll();
 	}
 	
+	@GetMapping("/listproducts/{id}")
+	public ResponseEntity<Product> getProductById(@PathVariable("id") Long product_id){
+		productService.getProductById(product_id);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 	
-	//country
+	@PostMapping("/addProduct")
+	public ResponseEntity<Product> addProduct(@RequestBody Product product) {
+		productService.addProduct(product);
+		return new ResponseEntity<Product>(HttpStatus.CREATED);
+	}
+	
+	@PutMapping("/updateProduct")
+	public ResponseEntity<Product> updateProduct(@RequestBody Product product){
+		productService.updateProduct(product);
+		return new ResponseEntity<Product>(HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/deleteProduct/{id}")
+	public ResponseEntity<?> deleteProduct(@PathVariable("id") Long product_id){
+		productService.deleteProduct(product_id);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	/**********************************************************************************
+	 * * country
+	 **********************************************************************************/
+	
 	@GetMapping("/listcountries")
 	public ResponseEntity<List<Country>> countries(){
 		List<Country> countries = countryService.listCountry();
