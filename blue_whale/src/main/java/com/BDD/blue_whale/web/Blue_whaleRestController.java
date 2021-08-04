@@ -13,29 +13,27 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.BDD.blue_whale.entities.Country;
 import com.BDD.blue_whale.entities.Faostat;
 import com.BDD.blue_whale.entities.Import_export;
 import com.BDD.blue_whale.entities.Product;
+import com.BDD.blue_whale.entities.Source;
 import com.BDD.blue_whale.repositories.CountryRepository;
 import com.BDD.blue_whale.repositories.FaostatRepository;
 import com.BDD.blue_whale.repositories.Import_exportRepository;
 import com.BDD.blue_whale.repositories.ProductRepository;
 import com.BDD.blue_whale.service.CountryService;
 import com.BDD.blue_whale.service.ProductService;
+import com.BDD.blue_whale.service.SourceService;
 
 
 
 @RestController
 @CrossOrigin("*")
 public class Blue_whaleRestController {
-	@Autowired
-	private ProductRepository productRepository;
-	
-	@Autowired
-	private CountryRepository countryRepository;
 	
 	@Autowired
 	private Import_exportRepository import_exportRepository;
@@ -49,20 +47,24 @@ public class Blue_whaleRestController {
 	@Autowired 
 	private ProductService productService;
 	
+	@Autowired
+	private SourceService sourceService;
+	
 
 	/**********************************************************************************
 	 * * product
 	 **********************************************************************************/
 	
 	@GetMapping("/listproducts")
-	public List<Product> products(){
-		return productRepository.findAll();
+	public ResponseEntity<List<Product>> products(){
+		List<Product> products = productService.listproduct();
+		return new ResponseEntity<List<Product>>(products, HttpStatus.OK);
 	}
 	
 	@GetMapping("/listproducts/{id}")
-	public ResponseEntity<Product> getProductById(@PathVariable("id") Long product_id){
-		productService.getProductById(product_id);
-		return new ResponseEntity<>(HttpStatus.OK);
+	public ResponseEntity<Optional<Product>> getProductById(@PathVariable("id") Long product_id){
+		Optional<Product> product =productService.getProductById(product_id);
+		return new ResponseEntity<Optional<Product>>(product,HttpStatus.OK);
 	}
 	
 	@PostMapping("/addProduct")
@@ -94,9 +96,9 @@ public class Blue_whaleRestController {
 	}
 	
 	@GetMapping("/listcountries/{id}")
-	public ResponseEntity<Country> getCountryById(@PathVariable("id") Long id){
+	public ResponseEntity<Optional<Country>> getCountryById(@PathVariable("id") Long id){
 		Optional<Country> country =countryService.getCountryById(id);
-		return new ResponseEntity<Country>(HttpStatus.OK);
+		return new ResponseEntity<Optional<Country>>(country,HttpStatus.OK);
 	}
 	
 	@PostMapping("/addCountry")
@@ -114,10 +116,42 @@ public class Blue_whaleRestController {
 	@DeleteMapping("/deleteCountry/{id}")
 	public ResponseEntity<?> deleteCountry(@PathVariable("id") long country_id){
 		countryService.deleteCountry(country_id);
-		return new ResponseEntity<Country>(HttpStatus.OK);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
+	/**********************************************************************************
+	 * * source
+	 **********************************************************************************/
+	@GetMapping("/listesources")
+	public ResponseEntity<List<Source>>  getsources(){
+		List<Source> sources =sourceService.listSource();
+		return new ResponseEntity<List<Source>>(sources, HttpStatus.OK);
+	}
 	
+	@GetMapping("/listesources/{id}")
+	public ResponseEntity<Optional<Source>> getSourceById(@PathVariable("id") Long source_id){
+		Optional<Source> source= sourceService.getSourceById(source_id);
+		return new ResponseEntity<Optional<Source>>(source, HttpStatus.OK);
+	}
+	
+	@PostMapping("/addSource")
+	public ResponseEntity<Source> addSource(@RequestBody Source source) {
+		sourceService.addSource(source);
+		return new ResponseEntity<Source>(HttpStatus.CREATED);
+	}
+	
+	@PutMapping("/updateSource")
+	public ResponseEntity<Source> updateSource(@RequestBody Source source){
+		sourceService.updateSource(source);
+		return new ResponseEntity<Source>(HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/deleteSource/{id}")
+	public ResponseEntity<Source> deleteSource(@PathVariable("id") Long source_id){
+		sourceService.deleteSource(source_id);
+		return new ResponseEntity<Source>(HttpStatus.OK);
+		
+	}
 	
 	//import export
 	@GetMapping("/listimport_exports")
