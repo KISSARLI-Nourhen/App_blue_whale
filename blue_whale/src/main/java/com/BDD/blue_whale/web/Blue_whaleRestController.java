@@ -13,20 +13,19 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.BDD.blue_whale.entities.Country;
 import com.BDD.blue_whale.entities.Faostat;
 import com.BDD.blue_whale.entities.Import_export;
 import com.BDD.blue_whale.entities.Product;
+import com.BDD.blue_whale.entities.Product_translation;
 import com.BDD.blue_whale.entities.Source;
-import com.BDD.blue_whale.repositories.CountryRepository;
 import com.BDD.blue_whale.repositories.FaostatRepository;
 import com.BDD.blue_whale.repositories.Import_exportRepository;
-import com.BDD.blue_whale.repositories.ProductRepository;
 import com.BDD.blue_whale.service.CountryService;
 import com.BDD.blue_whale.service.ProductService;
+import com.BDD.blue_whale.service.Product_translationService;
 import com.BDD.blue_whale.service.SourceService;
 
 
@@ -49,6 +48,9 @@ public class Blue_whaleRestController {
 	
 	@Autowired
 	private SourceService sourceService;
+	
+	@Autowired
+	private Product_translationService product_translationService;
 	
 
 	/**********************************************************************************
@@ -151,6 +153,39 @@ public class Blue_whaleRestController {
 		sourceService.deleteSource(source_id);
 		return new ResponseEntity<Source>(HttpStatus.OK);
 		
+	}
+	
+	/**********************************************************************************
+	 * * product translation
+	 **********************************************************************************/
+	@GetMapping("/productTranslation")
+	public ResponseEntity<List<Product_translation>> getProductTranslation(){
+		List<Product_translation> liste = product_translationService.listproduct_translation();
+		return new ResponseEntity<List<Product_translation>>(liste, HttpStatus.OK);
+	}
+	
+	@GetMapping("productTranslation/{id}")
+	public ResponseEntity<Optional<Product_translation>> getProductTranslationById(@PathVariable("id") Long translation_id){
+		Optional<Product_translation> productTrans = product_translationService.getProduct_translationById(translation_id);
+		return new ResponseEntity<Optional<Product_translation>>(productTrans, HttpStatus.OK);
+	}
+	
+	@PostMapping("/addProductTranslation")
+	public ResponseEntity<Product_translation> addProductTranslation(@RequestBody Product_translation p){
+		product_translationService.addProduct_translation(p);
+		return new ResponseEntity<Product_translation>(HttpStatus.CREATED);
+	}
+	
+	@PutMapping("/updateProductTranslation")
+	public ResponseEntity<Product_translation> updateProductTranslation(@RequestBody Product_translation p){
+		product_translationService.updateProduct_translation(p);
+		return new ResponseEntity<Product_translation>(HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/deleteProductTranslation/{id}")
+	public ResponseEntity<?> deleteProductTranslation(@PathVariable("id") Long translation_id){
+		product_translationService.deleteProduct_translation(translation_id);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	//import export
