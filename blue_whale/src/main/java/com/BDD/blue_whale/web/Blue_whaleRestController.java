@@ -16,17 +16,21 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.BDD.blue_whale.entities.Country;
+import com.BDD.blue_whale.entities.Country_translation;
 import com.BDD.blue_whale.entities.Faostat;
 import com.BDD.blue_whale.entities.Import_export;
 import com.BDD.blue_whale.entities.Product;
 import com.BDD.blue_whale.entities.Product_translation;
 import com.BDD.blue_whale.entities.Source;
+import com.BDD.blue_whale.entities.World_language;
 import com.BDD.blue_whale.repositories.FaostatRepository;
 import com.BDD.blue_whale.repositories.Import_exportRepository;
 import com.BDD.blue_whale.service.CountryService;
+import com.BDD.blue_whale.service.Country_translationService;
 import com.BDD.blue_whale.service.ProductService;
 import com.BDD.blue_whale.service.Product_translationService;
 import com.BDD.blue_whale.service.SourceService;
+import com.BDD.blue_whale.service.World_languageService;
 
 
 
@@ -36,21 +40,20 @@ public class Blue_whaleRestController {
 	
 	@Autowired
 	private Import_exportRepository import_exportRepository;
-	
 	@Autowired
 	private FaostatRepository faostatRepository;
-	
 	@Autowired
 	private CountryService countryService;
-	
 	@Autowired 
 	private ProductService productService;
-	
 	@Autowired
 	private SourceService sourceService;
-	
 	@Autowired
 	private Product_translationService product_translationService;
+	@Autowired
+	private World_languageService world_languagesService;
+	@Autowired
+	private Country_translationService country_translationService;
 	
 
 	/**********************************************************************************
@@ -158,16 +161,16 @@ public class Blue_whaleRestController {
 	/**********************************************************************************
 	 * * product translation
 	 **********************************************************************************/
-	@GetMapping("/productTranslation")
+	@GetMapping("/listproductTranslations")
 	public ResponseEntity<List<Product_translation>> getProductTranslation(){
 		List<Product_translation> liste = product_translationService.listproduct_translation();
 		return new ResponseEntity<List<Product_translation>>(liste, HttpStatus.OK);
 	}
 	
 	@GetMapping("productTranslation/{id}")
-	public ResponseEntity<Optional<Product_translation>> getProductTranslationById(@PathVariable("id") Long translation_id){
-		Optional<Product_translation> productTrans = product_translationService.getProduct_translationById(translation_id);
-		return new ResponseEntity<Optional<Product_translation>>(productTrans, HttpStatus.OK);
+	public ResponseEntity<Product_translation> getProductTranslationById(@PathVariable("id") Long translation_id){
+		Product_translation productTrans = product_translationService.getProduct_translationById(translation_id);
+		return new ResponseEntity<Product_translation>(productTrans, HttpStatus.OK);
 	}
 	
 	@PostMapping("/addProductTranslation")
@@ -175,6 +178,12 @@ public class Blue_whaleRestController {
 		product_translationService.addProduct_translation(p);
 		return new ResponseEntity<Product_translation>(HttpStatus.CREATED);
 	}
+	
+	/*@PostMapping("/createProductTranslation")
+	public ResponseEntity<Product_translationDTO> createProductTranslation(@RequestBody Product_translationDTO p){
+		product_translationService.create(p);
+		return new ResponseEntity<Product_translationDTO>(HttpStatus.CREATED);
+	}*/
 	
 	@PutMapping("/updateProductTranslation")
 	public ResponseEntity<Product_translation> updateProductTranslation(@RequestBody Product_translation p){
@@ -201,7 +210,41 @@ public class Blue_whaleRestController {
 	}
 	
 	
+	/**********************************************************************************
+	 * * word_language
+	 **********************************************************************************/
+	 
+	@GetMapping("/listlanguages")
+	public ResponseEntity<List<World_language>> getlanguages(){
+		List<World_language> liste = world_languagesService.listWorld_language();
+		return new ResponseEntity<List<World_language>>(liste, HttpStatus.OK);
+	}
 	
 	
+	/**********************************************************************************
+	 * * country translation
+	 **********************************************************************************/
+	@GetMapping("/listecountry_translation")
+	public ResponseEntity<List<Country_translation>> getCountryTranslation(){
+		List<Country_translation> liste =country_translationService.listCountry_translation();
+		return new ResponseEntity<List<Country_translation>>(liste, HttpStatus.OK);
+	}
 	
+	@PostMapping("/addCountryTranslation")
+	public ResponseEntity<Country_translation> addProductTranslation(@RequestBody Country_translation ct){
+		country_translationService.addCountry_translation(ct);
+		return new ResponseEntity<Country_translation>(HttpStatus.CREATED);
+	}
+	
+	@PutMapping("/updateCountryTranslation")
+	public ResponseEntity<Country_translation> updateProductTranslation(@RequestBody Country_translation ct){
+		country_translationService.updateCountry_translation(ct);
+		return new ResponseEntity<Country_translation>(HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/deleteCountryTranslation/{id}")
+	public ResponseEntity<?> deleteCountryTranslation(@PathVariable("id") Long translation_id){
+		country_translationService.deleteCountry_translation(translation_id);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
 }

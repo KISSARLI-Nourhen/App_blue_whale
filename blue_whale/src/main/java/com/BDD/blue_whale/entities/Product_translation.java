@@ -1,6 +1,7 @@
 package com.BDD.blue_whale.entities;
 
 import java.io.Serializable;
+import java.util.Optional;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -32,11 +33,11 @@ public class Product_translation implements Serializable{
 	private String translation;
 	
 	@ManyToOne
-	@JsonProperty(access=Access.WRITE_ONLY)
+	//@JsonProperty(access=Access.WRITE_ONLY)
 	@JoinColumn(name="product_id")
 	private Product product;
 	@ManyToOne
-	@JsonProperty(access=Access.WRITE_ONLY)
+	//@JsonProperty(access=Access.WRITE_ONLY)
 	@JoinColumn(name="alpha2")
 	private World_language world_language;
 	

@@ -4,10 +4,12 @@ import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.rest.core.annotation.RepositoryRestResource;
+import org.springframework.web.bind.annotation.CrossOrigin;
 
 import com.BDD.blue_whale.entities.Import_export;
 
 @RepositoryRestResource
+@CrossOrigin("*")
 public interface Import_exportRepository extends JpaRepository<Import_export, Long>{
 
 	/*List<Import_export> findByCountry_country_exporter_id(long country_exporter_id);

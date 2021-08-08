@@ -5,6 +5,7 @@ import java.util.Optional;
 
 import org.springframework.stereotype.Service;
 
+import com.BDD.blue_whale.dto.ProductDTO;
 import com.BDD.blue_whale.entities.Product;
 
 @Service
@@ -19,4 +20,8 @@ public interface ProductService {
 	public void deleteProduct(long product_id);
 	
 	public void updateProduct(Product product);
+
+	//List<ProductDTO> getproducts();
+	
+	//public void addProductToTraduction(Long product_id, Long pTraduction_id);
 }
