@@ -18,6 +18,7 @@ public interface FileStorageService {
 	//public void initOutPutData();
 	
 	public String getRefusedData();
+	public String convertExcel2Json();
 		
 	
 	

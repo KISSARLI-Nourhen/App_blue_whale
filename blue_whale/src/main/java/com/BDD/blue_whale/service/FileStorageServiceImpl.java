@@ -1,15 +1,24 @@
 package com.BDD.blue_whale.service;
 
+import java.io.File;
+import java.io.FileInputStream;
 import java.io.IOException;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.nio.file.StandardCopyOption;
+import java.util.ArrayList;
+import java.util.Iterator;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
+import org.apache.poi.hssf.usermodel.HSSFSheet;
+import org.apache.poi.hssf.usermodel.HSSFWorkbook;
+import org.apache.poi.ss.usermodel.Cell;
+import org.apache.poi.ss.usermodel.DataFormatter;
+import org.apache.poi.ss.usermodel.Row;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.core.io.Resource;
 import org.springframework.core.io.UrlResource;
@@ -17,13 +26,17 @@ import org.springframework.stereotype.Service;
 import org.springframework.util.FileSystemUtils;
 import org.springframework.web.multipart.MultipartFile;
 
+import com.BDD.blue_whale.entities.Excel;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import lombok.var;
 
 @Service
 public class FileStorageServiceImpl implements FileStorageService{
 	
 	@Autowired
-	FileStorageService fileStorageService;
+	private FileStorageService fileStorageService;
 	
 	private final Path root = Paths.get("uploads");
 	private final Path root2 = Paths.get("output_Data");
@@ -119,25 +132,10 @@ public class FileStorageServiceImpl implements FileStorageService{
 		
 	}
 
-	/*@Override
-	public List<List<String>> getRefusedData() {
-		
-		List<List<String>> records = new ArrayList<>();
-		try (BufferedReader br = new BufferedReader(new FileReader("root2/faostat_DataRefused"))) {
-		    String line;
-		    while ((line = br.readLine()) != null) {
-		        String[] values = line.split(";");
-		        records.add(Arrays.asList(values));
-		    }
-		} catch (IOException e) {
-			
-			e.printStackTrace();
-		} 
-		return records;
-	}*/
 	
+	@Override
 	public String getRefusedData() {
-		
+		//open and read csv file
 		 List<String> csvRows = null;
 	        try(var reader = Files.lines(Paths.get("output_Data\\\\faostat_DataRefused.csv"))){
 	            csvRows = reader.collect(Collectors.toList());
@@ -146,19 +144,18 @@ public class FileStorageServiceImpl implements FileStorageService{
 	        }
 
 	        if(csvRows != null){
-
+	        	//convert csv to json
 	            String json = csvToJson(csvRows);
 	            System.out.println(json);
 	            return json;
 	        }
-			return null;
+	        return null;
 		
 	}
 	
 	public static String csvToJson(List<String> csv){
 
-        //remove empty lines
-        //this will affect permanently the list. 
+        //remove empty lines this will affect permanently the list. 
         //be careful if you want to use this list after executing this method
         csv.removeIf(e -> e.trim().isEmpty());
 
@@ -204,17 +201,123 @@ public class FileStorageServiceImpl implements FileStorageService{
 
     }
 
-	/*public static void main(String [] args) {
-		    int i=0;
-		    String filename="output_Data\\faostat_DataRefused.csv";
-		    Path pathToFile = Paths.get(filename);
-		    System.out.println(pathToFile.toAbsolutePath());
+	
+	@Override
+	public String convertExcel2Json() {
+		//String filename = "ressource_trade_earth_DataRefused.xls";
+		// Step 1: Read Excel File into Java List Objects
+		List files = readExcelFile("output_Data\\\\ressource_trade_earth_DataRefused.xls");
+		// Step 2: Convert Java Objects to JSON String
+		String jsonString = convertObjects2JsonString(files);
+		System.out.println(jsonString);
+		return jsonString;
+	}
+	
+	/**
+	 * Read excel file into java List Objects
+	 */
+	public static List readExcelFile(String filePath) {
+		try {
+			FileInputStream excelFile = new FileInputStream(new File(filePath));
+			//workbook is a collection of one or more spreadsheets, also called worksheets, in a single file
+			HSSFWorkbook workbook = new HSSFWorkbook(excelFile);
+			//Workbook workbook = WorkbookFactory.create(new File(filePath));
+			//Get an Excel Sheet from above Workbook
+			HSSFSheet sheet=workbook.getSheetAt(0);  
 			
-			 fileStorageService.getRefusedData();
-		}*/
-	
-	
+			Iterator<Row> rows = sheet.iterator();
+			
+			List listeLigne = new ArrayList();
+			
+			int rowNumber = 0;
+			while (rows.hasNext()) {
+    			Row currentRow = rows.next();
+    			
+    			// skip header
+    			if(rowNumber == 0) {
+    				rowNumber++;
+    				continue;
+    			}
+    			Iterator<Cell> cellsInRow = currentRow.iterator();
+    			 
+    			Excel excel = new Excel();
+    			
+    			int cellIndex = 0;
+    			while (cellsInRow.hasNext()) {
+    				Cell currentCell = cellsInRow.next();
+    				
+    				
+    				 if(cellIndex==0) { // trade_flow
+    					excel.setTradeflow(new DataFormatter().formatCellValue(currentCell));
+    				} 
+    				else if(cellIndex==1) { // country_exporter_name
+    					excel.setCountry_expo(new DataFormatter().formatCellValue(currentCell));
+    				} 
+    				else if(cellIndex==2) { // country_importer_name
+    					excel.setCountry_impo(new DataFormatter().formatCellValue(currentCell));
+    				} 
+    				else if(cellIndex==3) { // produit_name
+    					excel.setProduct( new DataFormatter().formatCellValue(currentCell));
 
+    				}
+    				else if(cellIndex==4) { // variety
+    					excel.setVariety(new DataFormatter().formatCellValue(currentCell));
+    				}
+    				else if(cellIndex==5) { // years
+    					excel.setYears(new DataFormatter().formatCellValue(currentCell));
+    				}
+    				else if(cellIndex==6) { // months
+    					excel.setMonths(new DataFormatter().formatCellValue(currentCell));
+					} 
+    				else if(cellIndex==7) { // value
+						excel.setValue(new DataFormatter().formatCellValue(currentCell));
+					}
+					else if(cellIndex==8) { // unit_value
+						excel.setUnit_value( new DataFormatter().formatCellValue(currentCell));
+					}
+					else if(cellIndex==9) { // netweight
+						excel.setNetweight(new DataFormatter().formatCellValue(currentCell));
+					}
+					else if(cellIndex==10) { // unit_netweight
+						excel.setUnit_netweight(new DataFormatter().formatCellValue(currentCell));
+
+					}
+					else if(cellIndex==11) { // source
+						excel.setSource(new DataFormatter().formatCellValue(currentCell));
+					}
+    				cellIndex++;
+    			}
+    			listeLigne.add(excel);
+			}
+			
+			// Close WorkBook
+    		workbook.close();
+    		
+    		return listeLigne;
+    		
+		} catch(IOException e) {
+			throw new RuntimeException("fail to parse Excel file = " + e.getMessage());
+		}
+	}
+	
+	/**
+	 * Convert Java Objects to JSON String
+	 */
+	private static String convertObjects2JsonString(List files) {
+		
+    	ObjectMapper mapper = new ObjectMapper();
+    	String jsonString = "";
+    	try {
+    		jsonString = mapper.writeValueAsString(files);
+    	} catch (JsonProcessingException e) {
+    		e.printStackTrace();
+    	}
+    	
+    	return jsonString; 
+	}
+	
+	
+	
 }
 
 

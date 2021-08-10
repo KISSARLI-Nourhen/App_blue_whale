@@ -28,7 +28,6 @@ public class Country_translation implements Serializable{
 	private static final long serialVersionUID = 1L;
 	@Id @GeneratedValue(strategy= GenerationType.IDENTITY)
 	private Long country_translation_id;
-	private String alpha2_langue;
 	private String translation;
 	
 	@ManyToOne

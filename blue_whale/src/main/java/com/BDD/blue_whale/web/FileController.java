@@ -1,6 +1,5 @@
 package com.BDD.blue_whale.web;
 
-import java.nio.file.Path;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.method.annotation.MvcUriComponentsBuilder;
 
+import com.BDD.blue_whale.entities.Excel;
 import com.BDD.blue_whale.entities.FileInfo;
 import com.BDD.blue_whale.message.ResponseMessage;
 import com.BDD.blue_whale.service.FileStorageService;
@@ -59,11 +59,14 @@ public class FileController {
 		//String[] args = {};
 		
 			resourcetradeearth talendJob = new resourcetradeearth();
-			String resourcetradeearth="uploads\\\\\\\\"+ file.getOriginalFilename();
-			String [] context=new String[] {"--context_param resource_file_resourcetradeearth="+resourcetradeearth};
+			String resourcetradeearth="uploads\\\\\\\\"+ file.getOriginalFilename();//input file
+			String DataAccepted = "output_Data\\\\ressource_trade_earth_DataAccepted.xls";//output file with data accepted
+			String DataRefused ="output_Data\\\\ressource_trade_earth_DataRefused.xls";//output file with data refused
+			String [] context=new String[] {"--context_param resource_file_resourcetradeearth="+resourcetradeearth,
+					"--context_param resource_file_ressourcetradeearthAccepted="+DataAccepted,
+					"--context_param resource_file_ressourcetradeearthRefused="+DataRefused};
 			//talendJob.runJob(context);
 			int exitCode = talendJob.runJobInTOS(context);
-			
 			
 			if (exitCode == 0) {
 				message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
@@ -81,18 +84,26 @@ public class FileController {
 		String message ="";
 		//String[] args = {};
 		
-		//jar for file with X
+		//jar for file with X (X: export M: import)
 		comtradeX_CSV talendJobX = new comtradeX_CSV(); 
-		String resource_file_comtradeX="uploads\\\\\\\\"+ file.getOriginalFilename();
-		String [] context=new String[] {"--context_param resource_file_comtradeX="+resource_file_comtradeX};
+		String resource_file_comtradeX="uploads\\\\\\\\"+ file.getOriginalFilename();//input file
+		String DataAcceptedX = "output_Data\\\\ComtradeX_DataAccepted.xls";//output file with data accepted X
+		String DataRefusedX ="output_Data\\\\ComtradeX_DataRefused.xls";//output file with data refused X
+		
+		String [] context=new String[] {"--context_param resource_file_comtradeX="+resource_file_comtradeX, 
+				"--context_param resource_file_comtradeX_Accepted="+DataAcceptedX, "--context_param resource_file_comtradeX_Refused="+DataRefusedX};
 		//talendJobX.runJob(context);
 		int exitCode1 = talendJobX.runJobInTOS(context);
 		
 		
-		//jar for file with X
+		//jar for file with M
 		comtradeM_CSV talendJobM = new comtradeM_CSV(); 
 		String resource_file_comtradeM="uploads\\\\\\\\"+ file.getOriginalFilename();
-		String [] context2=new String[] {"--context_param resource_file_comtradeM="+resource_file_comtradeM};
+		String DataAcceptedM = "output_Data\\\\ComtradeM_DataAccepted.xls";//output file with data accepted M
+		String DataRefusedM ="output_Data\\\\ComtradeM_DataRefused.xls";//output file with data refused M
+		
+		String [] context2=new String[] {"--context_param resource_file_comtradeM="+resource_file_comtradeM, 
+				"--context_param resource_file_comtradeM_Accepted="+DataAcceptedM, "--context_param resource_file_comtradeM_Refused="+DataRefusedM};
 		//talendJobM.runJob(context2);
 		int exitCode2 = talendJobM.runJobInTOS(context2);
 		
@@ -157,7 +168,6 @@ public class FileController {
 			int exitCode2 = talendJob2.runJobInTOS(context2);
 			
 			
-			
 			if (exitCode2 == 0) {
 				message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
 				return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
@@ -218,6 +228,17 @@ public class FileController {
 		  
 		 return new ResponseEntity<>(refusedJson, HttpStatus.OK);
 	  }
+	  
+	  @GetMapping("/readOUTResourceTradeEarth")
+	  public ResponseEntity<String> convertExcel2Json(){
+		  
+		 String refusedJson= filestorageService.convertExcel2Json();
+		  
+		 return new ResponseEntity<>(refusedJson, HttpStatus.OK);
+	  }
+	  
+	 
+	  
 	
 	
 }
