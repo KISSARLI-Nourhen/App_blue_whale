@@ -1,8 +1,11 @@
 package com.BDD.blue_whale.service;
 
+import java.io.BufferedReader;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileReader;
 import java.io.IOException;
+import java.io.PrintWriter;
 import java.net.MalformedURLException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -11,6 +14,7 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
+import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -40,7 +44,7 @@ public class FileStorageServiceImpl implements FileStorageService{
 	
 	private final Path root = Paths.get("uploads");
 	private final Path root2 = Paths.get("output_Data");
-	//String filename ="file.xlsx";
+	String ComtradeRefused[] = {"ComtradeM_DataRefused.csv", "ComtradeX_DataRefused.csv"};
 	
 	@Override
 	public void init() {
@@ -63,13 +67,12 @@ public class FileStorageServiceImpl implements FileStorageService{
 	  }
 	 
 	
-	
-
 	@Override
 	public void deleteAll() {
 		FileSystemUtils.deleteRecursively(root.toFile());
 		FileSystemUtils.deleteRecursively(root2.toFile());
 	}
+	
 
 	@Override
 	public Stream<Path> loadAll() {
@@ -78,11 +81,11 @@ public class FileStorageServiceImpl implements FileStorageService{
 			
 		} catch (Exception e) {
 			throw new RuntimeException("Could not load the files !");
-		}
-		
+		}	
 	}
 	
 	//load methode for accepted or refused data from talend
+	@Override
 	public Stream<Path> loadAllOutPutData() {
 		try {
 			return Files.walk(this.root2, 1).filter(path -> !path.equals(this.root2)).map(this.root2::relativize);
@@ -90,7 +93,6 @@ public class FileStorageServiceImpl implements FileStorageService{
 		} catch (Exception e) {
 			throw new RuntimeException("Could not load the files !");
 		}
-		
 	}
 	
 	
@@ -108,10 +110,9 @@ public class FileStorageServiceImpl implements FileStorageService{
 			}
 		} catch (MalformedURLException e) {
 			throw new RuntimeException("Eroor:" +e.getMessage());
-			
 		}
-		
 	}
+	
 	
 	@Override
 	public Resource loadOutPutData(String filename) {
@@ -127,36 +128,37 @@ public class FileStorageServiceImpl implements FileStorageService{
 			}
 		} catch (MalformedURLException e) {
 			throw new RuntimeException("Eroor:" +e.getMessage());
-			
 		}
-		
 	}
 
-	
+	/**
+	 * use this method to get refused data from faostat and show it in angular
+	 */
 	@Override
-	public String getRefusedData() {
-		//open and read csv file
+	public String convertCSV2Json(String filename) {
+		//open and read csv file faostat_DataRefused.csv ComtradeM_DataRefused.csv
 		 List<String> csvRows = null;
-	        try(var reader = Files.lines(Paths.get("output_Data\\\\faostat_DataRefused.csv"))){
+	        try(var reader = Files.lines(Paths.get("output_Data\\\\"+filename))){
+	        	
 	            csvRows = reader.collect(Collectors.toList());
-	        }catch(Exception e){
+	        } catch(Exception e){
 	            e.printStackTrace();
 	        }
 
 	        if(csvRows != null){
-	        	//convert csv to json
+	        	//convert csv to json (method bellow)
 	            String json = csvToJson(csvRows);
 	            System.out.println(json);
 	            return json;
 	        }
 	        return null;
-		
 	}
 	
+	
+	//method to covert csv file to json
 	public static String csvToJson(List<String> csv){
 
         //remove empty lines this will affect permanently the list. 
-        //be careful if you want to use this list after executing this method
         csv.removeIf(e -> e.trim().isEmpty());
 
         //csv is empty or have declared only columns
@@ -171,7 +173,7 @@ public class FileStorageServiceImpl implements FileStorageService{
         StringBuilder json = new StringBuilder("[\n");
         csv.subList(1, csv.size()) //substring without first row(columns)
             .stream()
-            .map(e -> e.split(";"))
+            .map(e -> e.split(";(?=(?:[^\"]*\"[^\"]*\")*[^\"]*$)"))
             .filter(e -> e.length == columns.length) //values size should match with columns size
             .forEach(row -> {
 
@@ -180,28 +182,27 @@ public class FileStorageServiceImpl implements FileStorageService{
                     for(int i = 0; i < columns.length; i++){
                         json.append("\t\t\"")
                             .append(columns[i])
-                            .append("\" : \"")
+                            .append("\" : ")
                             .append(row[i])
-                            .append("\",\n"); //comma-1
+                            .append(",\n"); //comma-1
                     }
 
                     //replace comma-1 with \n
                     json.replace(json.lastIndexOf(","), json.length(), "\n");
 
                 json.append("\t},"); //comma-2
-
             });
 
         //remove comma-2
         json.replace(json.lastIndexOf(","), json.length(), "");
-
         json.append("\n]");
-
+        
         return json.toString();
-
     }
-
 	
+	/**
+	 * method to convert excel file resource trade earth to json 
+	 */
 	@Override
 	public String convertExcel2Json() {
 		//String filename = "ressource_trade_earth_DataRefused.xls";
@@ -315,6 +316,73 @@ public class FileStorageServiceImpl implements FileStorageService{
     	
     	return jsonString; 
 	}
+	
+	/**
+	 * get refused data from comtrade to show it in angular
+	 * step 1 : merge csv file comtradex and comtradeM into file comtrade
+	 * step 2 : converte comtrade.csv to json with method convertCSV2Json(filename) (used in faostat)
+	 */
+	
+	@Override
+	public String mergeComtradeAndConvertCs2Json() {
+		String filename = mergeComtrade();
+		return convertCSV2Json(filename);
+	}
+	
+	
+	public String mergeComtrade() {
+		
+		try {
+			
+			PrintWriter pw = new PrintWriter("output_Data\\\\Comtrade_DataRefused.csv"); 
+	
+		    // BufferedReader object for file1.txt 
+		    BufferedReader br1 = new BufferedReader(new FileReader("output_Data\\\\ComtradeX_DataRefused.csv")); 
+		    BufferedReader br2 = new BufferedReader(new FileReader("output_Data\\\\ComtradeM_DataRefused.csv")); 
+	
+		    String line1 = br1.readLine(); //header comtradeX
+		   
+		    String line2 = br2.readLine();  //header comtradeM
+		   
+		    
+		    // loop to copy lines of ComtradeX and ComtradeM  to  Comtrade alternatively 
+		    while (line1 != null || line2 !=null) { 
+		        while(line1 != null) 
+		        { 
+		            pw.println(line1); 
+		            line1 = br1.readLine();
+		           // System.out.println(line1);
+		        }
+		        
+		        while(line2 != null) 
+		        { 
+		        	//System.out.println(line2);
+		        	if(line2.startsWith("tradeflow")) {
+		        		line2 = br2.readLine();
+		        		break;
+		        	} else {
+		        		 pw.println(line2); 
+				         line2 = br2.readLine(); 
+		        	}
+		        } 
+		    } 
+	
+		    pw.flush(); 
+	
+		    // closing resources 
+		    br1.close(); 
+		    br2.close(); 
+		    pw.close(); 
+	       
+		} catch (IOException e) {
+			
+			e.printStackTrace();
+		}	
+		return  "Comtrade_DataRefused.csv";	
+}
+	
+
+
 	
 	
 	

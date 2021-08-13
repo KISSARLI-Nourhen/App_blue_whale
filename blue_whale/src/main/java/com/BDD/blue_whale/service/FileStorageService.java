@@ -15,10 +15,11 @@ public interface FileStorageService {
 	public void deleteAll();
 	public Stream<Path> loadAll();
 	public Stream<Path> loadAllOutPutData();
-	//public void initOutPutData();
 	
-	public String getRefusedData();
 	public String convertExcel2Json();
+	public String convertCSV2Json(String filename);
+	
+	public String mergeComtradeAndConvertCs2Json();
 		
 	
 	

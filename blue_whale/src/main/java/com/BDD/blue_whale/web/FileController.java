@@ -80,40 +80,38 @@ public class FileController {
 	
 	@PostMapping("/upload/comtrade")
 	public ResponseEntity<ResponseMessage> comtrade(@RequestParam("file") MultipartFile file) {
-		
 		String message ="";
-		//String[] args = {};
+		
 		
 		//jar for file with X (X: export M: import)
 		comtradeX_CSV talendJobX = new comtradeX_CSV(); 
 		String resource_file_comtradeX="uploads\\\\\\\\"+ file.getOriginalFilename();//input file
-		String DataAcceptedX = "output_Data\\\\ComtradeX_DataAccepted.xls";//output file with data accepted X
-		String DataRefusedX ="output_Data\\\\ComtradeX_DataRefused.xls";//output file with data refused X
+		String DataAcceptedX = "output_Data\\\\ComtradeX_DataAccepted.csv";//output file with data accepted X
+		String DataRefusedX ="output_Data\\\\ComtradeX_DataRefused.csv";//output file with data refused X
 		
-		String [] context=new String[] {"--context_param resource_file_comtradeX="+resource_file_comtradeX, 
+		String[] context=new String[] {"--context_param resource_file_comtradeX="+resource_file_comtradeX,
 				"--context_param resource_file_comtradeX_Accepted="+DataAcceptedX, "--context_param resource_file_comtradeX_Refused="+DataRefusedX};
 		//talendJobX.runJob(context);
 		int exitCode1 = talendJobX.runJobInTOS(context);
 		
-		
+
 		//jar for file with M
 		comtradeM_CSV talendJobM = new comtradeM_CSV(); 
 		String resource_file_comtradeM="uploads\\\\\\\\"+ file.getOriginalFilename();
-		String DataAcceptedM = "output_Data\\\\ComtradeM_DataAccepted.xls";//output file with data accepted M
-		String DataRefusedM ="output_Data\\\\ComtradeM_DataRefused.xls";//output file with data refused M
+		String DataAcceptedM = "output_Data\\\\ComtradeM_DataAccepted.csv";//output file with data accepted M
+		String DataRefusedM ="output_Data\\\\ComtradeM_DataRefused.csv";//output file with data refused M
 		
-		String [] context2=new String[] {"--context_param resource_file_comtradeM="+resource_file_comtradeM, 
+		String[] context2=new String[] {"--context_param resource_file_comtradeM="+resource_file_comtradeM, 
 				"--context_param resource_file_comtradeM_Accepted="+DataAcceptedM, "--context_param resource_file_comtradeM_Refused="+DataRefusedM};
 		//talendJobM.runJob(context2);
 		int exitCode2 = talendJobM.runJobInTOS(context2);
 		
 		
-		
 		if (exitCode1 == 0 && exitCode2 == 0) {
-			message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
+			message ="Data in file : " + file.getOriginalFilename()+" uploaded to the database ";
 			return ResponseEntity.status(HttpStatus.OK).body(new ResponseMessage(message));
 		} else {
-			message = "Could not upload the file: " + file.getOriginalFilename() + " to the database !" ;
+			message = "Could not upload the Data in file : " + file.getOriginalFilename() + " to the database !" ;
 			return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(new ResponseMessage(message));
 		}
 	}
@@ -221,19 +219,25 @@ public class FileController {
 	        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
 	  }
 	  
-	  @GetMapping("/readOutPutData")
-	  public ResponseEntity<String> getRefusedData(){
+	  @GetMapping("/readCsv/{filename}")
+	  public ResponseEntity<String> getRefusedData(@PathVariable("filename") String filename){
 		  
-		 String refusedJson= filestorageService.getRefusedData();
-		  
+		 String refusedJson= filestorageService.convertCSV2Json(filename);
 		 return new ResponseEntity<>(refusedJson, HttpStatus.OK);
 	  }
 	  
-	  @GetMapping("/readOUTResourceTradeEarth")
+	  @GetMapping("/readExcel")
 	  public ResponseEntity<String> convertExcel2Json(){
 		  
 		 String refusedJson= filestorageService.convertExcel2Json();
 		  
+		 return new ResponseEntity<>(refusedJson, HttpStatus.OK);
+	  }
+	  
+	  @GetMapping("/readCsvAfterMerge")
+	  public ResponseEntity<String> mergeComtradeAndConvertCs2Json(){
+		  
+		 String refusedJson= filestorageService.mergeComtradeAndConvertCs2Json();
 		 return new ResponseEntity<>(refusedJson, HttpStatus.OK);
 	  }
 	  
