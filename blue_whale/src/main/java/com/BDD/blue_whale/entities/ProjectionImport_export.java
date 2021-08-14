@@ -14,7 +14,6 @@ public interface ProjectionImport_export {
 	public Integer getYears();
 	public String getMonths();
 	public Float getValue();
-	
 	public String getUnit_value();
 	public Float getNetweight();
 	public String getUnit_netweight();
