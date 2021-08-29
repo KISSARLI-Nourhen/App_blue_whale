@@ -20,25 +20,21 @@ public class FaostatServiceImpl implements FaostatService{
 	
 	@Override
 	public void addFaostat(Faostat faostat) {
-		
 		faostatRepository.save(faostat);
 	}
 
 	@Override
 	public List<Faostat> listFaostat() {
-		
 		return faostatRepository.findAll();
 	}
 
 	@Override
 	public Optional<Faostat> getFaostatById(long id) {
-		
 		return faostatRepository.findById(id);
 	}
 
 	@Override
 	public void deleteFaostat(long id) {
-		
 		faostatRepository.deleteById(id);
 	}
 

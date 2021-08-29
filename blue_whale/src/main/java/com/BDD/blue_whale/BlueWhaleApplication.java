@@ -1,15 +1,13 @@
 package com.BDD.blue_whale;
 
-import java.util.Optional;
-
 import javax.annotation.Resource;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.CommandLineRunner;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.core.SpringVersion;
 
-import com.BDD.blue_whale.entities.Country;
 import com.BDD.blue_whale.repositories.CountryRepository;
 import com.BDD.blue_whale.repositories.DepartmentRepository;
 import com.BDD.blue_whale.repositories.RoleRepository;
@@ -23,31 +21,29 @@ public class BlueWhaleApplication implements CommandLineRunner{
 	
 	@Autowired
 	private CountryRepository countryRepository;
-	
 	@Autowired
 	private DepartmentRepository departmentRepository;
-	
 	@Autowired
 	private UserRepository userRepository;
 	@Autowired
 	private RoleRepository roleRepository;
-	
 	@Autowired
 	private UsersService usersService;
-	
 	@Autowired
 	private CountryService countryService;
-	
 	@Resource
 	private FileStorageService FileStorageService;
 	
+	
 	public static void main(String[] args) {
 		SpringApplication.run(BlueWhaleApplication.class, args);
+		
 	}
 
 	@Override
 	public void run(String... args) throws Exception {
 		
+		// System.out.println("version: " + SpringVersion.getVersion());
 		
 		FileStorageService.deleteAll();
 		FileStorageService.init();

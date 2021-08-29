@@ -1,9 +1,18 @@
 package com.BDD.blue_whale.web;
 
+
+import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
+import org.springframework.data.domain.Sort.Order;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -13,6 +22,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.BDD.blue_whale.entities.Country;
@@ -27,6 +37,7 @@ import com.BDD.blue_whale.repositories.FaostatRepository;
 import com.BDD.blue_whale.repositories.Import_exportRepository;
 import com.BDD.blue_whale.service.CountryService;
 import com.BDD.blue_whale.service.Country_translationService;
+import com.BDD.blue_whale.service.FaostatService;
 import com.BDD.blue_whale.service.ProductService;
 import com.BDD.blue_whale.service.Product_translationService;
 import com.BDD.blue_whale.service.SourceService;
@@ -54,6 +65,10 @@ public class Blue_whaleRestController {
 	private World_languageService world_languagesService;
 	@Autowired
 	private Country_translationService country_translationService;
+	@Autowired
+	private FaostatService faostatService;
+	
+	
 	
 
 	/**********************************************************************************
@@ -107,15 +122,15 @@ public class Blue_whaleRestController {
 	}
 	
 	@PostMapping("/addCountry")
-	public ResponseEntity<?> addCountry(@RequestBody Country country) {
+	public ResponseEntity<Country> addCountry(@RequestBody Country country) {
 		countryService.addCountry(country);
-		return new ResponseEntity<>(HttpStatus.CREATED);
+		return new ResponseEntity<Country>(HttpStatus.CREATED);
 	}
 	
 	@PutMapping("/updateCountry")
-	public ResponseEntity<?> updateCountry(@RequestBody Country country) {
+	public ResponseEntity<Country> updateCountry(@RequestBody Country country) {
 		countryService.updateCountry(country);
-		return new ResponseEntity<>(HttpStatus.OK);
+		return new ResponseEntity<Country>(HttpStatus.OK);
 	}
 	
 	@DeleteMapping("/deleteCountry/{id}")
@@ -248,10 +263,66 @@ public class Blue_whaleRestController {
 	}
 	
 	/**********************************************************************************
-	 * * import export
+	 * * Faostat
 	 **********************************************************************************/
 	
+	private Sort.Direction getSortDirection(String direction){
+		
+		if(direction.equals("asc")){
+			return Sort.Direction.ASC;
+			
+		} else if(direction.equals("desc")) {
+			return Sort.Direction.DESC;
+		}
+		return Sort.Direction.ASC;
+	}
 	
+	@GetMapping("/faostats")
+	public ResponseEntity<Map<String, Object>> getAllFaostatsPage(
+			@RequestParam(defaultValue = "0") int page,
+			@RequestParam(defaultValue = "3") int size,
+			@RequestParam(defaultValue = "id, desc") String[] sort){
+		
+		try {
+			List<Order> orders = new ArrayList<Order>();
+			
+			if(sort[0].contains(",")) {
+			// will sort more than 2 fields sortOrder="field, direction"
+				for(String sortOrder : sort) {
+					String[] _sort = sortOrder.split(",");
+					orders.add(new Order(getSortDirection(_sort[1]), _sort[0]));
+				} 
+			} else {
+		        // sort=[field, direction]
+		        orders.add(new Order(getSortDirection(sort[1]), sort[0]));
+		      }
+			
+			List<Faostat> faostats = new ArrayList<Faostat>();
+			Pageable pagingSort = PageRequest.of(page, size, Sort.by(orders));
+
+		      Page<Faostat> pageFaostats;
+		      /*if (title == null) {
+		        pageTuts = faostatRepository.findAll(pagingSort);
+		      } else {
+		        pageTuts = faostatRepository.findByTitleContaining(title, pagingSort);
+		      }*/
+		      pageFaostats = faostatRepository.findAll(pagingSort);
+		    
+		      faostats = pageFaostats.getContent();
+
+		      Map<String, Object> response = new HashMap<>();
+		      response.put("faostats", faostats);
+		      response.put("currentPage", pageFaostats.getNumber());
+		      response.put("totalItems", pageFaostats.getTotalElements());
+		      response.put("totalPages", pageFaostats.getTotalPages());
+
+		      return new ResponseEntity<>(response, HttpStatus.OK);
+			
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+		
+	}
 	
 	
 }

@@ -1,7 +1,8 @@
 package com.BDD.blue_whale.entities;
 
 import java.io.Serializable;
-import java.security.Timestamp;
+import java.sql.Date;
+import java.sql.Timestamp;
 
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -48,7 +49,7 @@ public class Faostat implements Serializable{
 	@JoinColumn(name="country_id")
 	private Country country;
 	@ManyToOne
-	@JsonProperty(access=Access.WRITE_ONLY)
+	//@JsonProperty(access=Access.WRITE_ONLY)
 	@JoinColumn(name="source_id")
 	private Source source;
 	
