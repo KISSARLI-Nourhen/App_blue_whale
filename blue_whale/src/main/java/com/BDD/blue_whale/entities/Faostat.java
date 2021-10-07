@@ -41,15 +41,13 @@ public class Faostat implements Serializable{
 	private Timestamp date_modif;
 	
 	@ManyToOne
-	//@JsonProperty(access=Access.WRITE_ONLY)
 	@JoinColumn(name="product_id")
 	private Product product;
 	@ManyToOne
-	//@JsonProperty(access=Access.WRITE_ONLY)
+	
 	@JoinColumn(name="country_id")
 	private Country country;
 	@ManyToOne
-	//@JsonProperty(access=Access.WRITE_ONLY)
 	@JoinColumn(name="source_id")
 	private Source source;
 	

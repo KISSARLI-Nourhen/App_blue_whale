@@ -18,9 +18,7 @@ public interface FaostatService {
 	
 	public void deleteFaostat(long id);
 	
-	/*public List<Faostat> findByCountry(long country_id);
 	
-	public List<Faostat> findByProduct(long product_id);*/
 	
 	public void updateFaostat(Faostat faostat);
 }

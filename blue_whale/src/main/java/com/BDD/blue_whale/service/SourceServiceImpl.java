@@ -48,16 +48,6 @@ public class SourceServiceImpl implements SourceService{
 		
 	}
 
-	/*@Override
-	public Source findByImport_export(long id) {
-		
-		return SourceRepository.findByImport_export_id(id);
-	}
-
-	@Override
-	public Source findByFaostat(long id) {
-		
-		return SourceRepository.findByFaostat_id(id);
-	}*/
+	
 
 }

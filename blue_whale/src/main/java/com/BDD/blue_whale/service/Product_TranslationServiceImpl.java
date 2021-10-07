@@ -79,11 +79,7 @@ public class Product_TranslationServiceImpl implements Product_translationServic
 		
 	}
 
-	/*@Override
-	public List<Product_translation> findByProduct(long product_id) {
-		
-		return product_translationRepository.findByProduct_product_id(product_id);
-	}*/
+	
 	
 	
 	

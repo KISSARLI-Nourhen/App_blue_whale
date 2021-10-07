@@ -44,16 +44,6 @@ public class FaostatServiceImpl implements FaostatService{
 		
 	}
 
-/*	@Override
-	public List<Faostat> findByCountry(long country_id) {
-		
-		return faostatRepository.findByCountry_country_id(country_id);
-	}*/
 
-	/*@Override
-	public List<Faostat> findByProduct(long product_id) {
-		
-		return faostatRepository.findByProduct_product_id(product_id);
-	}*/
 
 }

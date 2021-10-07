@@ -14,7 +14,6 @@ import java.nio.file.StandardCopyOption;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
-import java.util.Scanner;
 import java.util.stream.Collectors;
 import java.util.stream.Stream;
 
@@ -42,12 +41,12 @@ public class FileStorageServiceImpl implements FileStorageService{
 	@Autowired
 	private FileStorageService fileStorageService;
 	
-	private final Path root = Paths.get("uploads");
-	private final Path root2 = Paths.get("output_Data");
+	private final Path root = Paths.get("uploads");//répertoire pour les fichiers téléchargés
+	private final Path root2 = Paths.get("output_Data");//répertoire pour les fichiers output
 	String ComtradeRefused[] = {"ComtradeM_DataRefused.csv", "ComtradeX_DataRefused.csv"};
 	
 	@Override
-	public void init() {
+	public void init() { //creation des répertoires
 		try {
 			Files.createDirectory(root);
 			Files.createDirectory(root2);
@@ -58,7 +57,7 @@ public class FileStorageServiceImpl implements FileStorageService{
 	}
 	
 	 @Override
-	public void save(MultipartFile file) {
+	public void save(MultipartFile file) {//enregistrer un fichier dans le répertoire upload
 	    try {
 	      Files.copy(file.getInputStream(), this.root.resolve(file.getOriginalFilename()),StandardCopyOption.REPLACE_EXISTING);
 	    } catch (Exception e) {
@@ -68,14 +67,14 @@ public class FileStorageServiceImpl implements FileStorageService{
 	 
 	
 	@Override
-	public void deleteAll() {
+	public void deleteAll() {//supprime les files dans les répertoires lors de démarrage
 		FileSystemUtils.deleteRecursively(root.toFile());
 		FileSystemUtils.deleteRecursively(root2.toFile());
 	}
 	
 
 	@Override
-	public Stream<Path> loadAll() {
+	public Stream<Path> loadAll() {//afficher tous les fichiers qui sont dans le répertoire upload input
 		try {
 			return Files.walk(this.root, 1).filter(path -> !path.equals(this.root)).map(this.root::relativize);
 			
@@ -86,7 +85,7 @@ public class FileStorageServiceImpl implements FileStorageService{
 	
 	//load methode for accepted or refused data from talend
 	@Override
-	public Stream<Path> loadAllOutPutData() {
+	public Stream<Path> loadAllOutPutData() {//afficher tous les fichiers qui sont dans le répertoire output_Data
 		try {
 			return Files.walk(this.root2, 1).filter(path -> !path.equals(this.root2)).map(this.root2::relativize);
 			
@@ -97,7 +96,7 @@ public class FileStorageServiceImpl implements FileStorageService{
 	
 	
 	@Override
-	public Resource load(String filename) {
+	public Resource load(String filename) {//téléchargement du fichier input
 		
 		Path file= root.resolve(filename);
 		try {
@@ -115,7 +114,7 @@ public class FileStorageServiceImpl implements FileStorageService{
 	
 	
 	@Override
-	public Resource loadOutPutData(String filename) {
+	public Resource loadOutPutData(String filename) {//téléchargement des fichiers output
 		
 		Path file= root2.resolve(filename);
 		try {
@@ -133,6 +132,7 @@ public class FileStorageServiceImpl implements FileStorageService{
 
 	/**
 	 * use this method to get refused data from faostat and show it in angular
+	 * pour cela on doit récupérer les données sous forme de Json pour le front
 	 */
 	@Override
 	public String convertCSV2Json(String filename) {
@@ -146,7 +146,7 @@ public class FileStorageServiceImpl implements FileStorageService{
 	        }
 
 	        if(csvRows != null){
-	        	//convert csv to json (method bellow)
+	        	//convert csv to json 
 	            String json = csvToJson(csvRows);
 	            System.out.println(json);
 	            return json;
@@ -239,52 +239,52 @@ public class FileStorageServiceImpl implements FileStorageService{
     				rowNumber++;
     				continue;
     			}
-    			Iterator<Cell> cellsInRow = currentRow.iterator();
+    			Iterator<org.apache.poi.ss.usermodel.Cell> cellsInRow = currentRow.iterator();
     			 
     			Excel excel = new Excel();
     			
     			int cellIndex = 0;
     			while (cellsInRow.hasNext()) {
-    				Cell currentCell = cellsInRow.next();
+    				Cell currentCell = (Cell) cellsInRow.next();
     				
     				
     				 if(cellIndex==0) { // trade_flow
-    					excel.setTradeflow(new DataFormatter().formatCellValue(currentCell));
+    					excel.setTradeflow(new DataFormatter().formatCellValue((Cell) currentCell));
     				} 
     				else if(cellIndex==1) { // country_exporter_name
-    					excel.setCountry_expo(new DataFormatter().formatCellValue(currentCell));
+    					excel.setCountry_expo(new DataFormatter().formatCellValue((Cell) currentCell));
     				} 
     				else if(cellIndex==2) { // country_importer_name
-    					excel.setCountry_impo(new DataFormatter().formatCellValue(currentCell));
+    					excel.setCountry_impo(new DataFormatter().formatCellValue((Cell) currentCell));
     				} 
     				else if(cellIndex==3) { // produit_name
-    					excel.setProduct( new DataFormatter().formatCellValue(currentCell));
+    					excel.setProduct( new DataFormatter().formatCellValue((Cell) currentCell));
 
     				}
     				else if(cellIndex==4) { // variety
-    					excel.setVariety(new DataFormatter().formatCellValue(currentCell));
+    					excel.setVariety(new DataFormatter().formatCellValue((Cell) currentCell));
     				}
     				else if(cellIndex==5) { // years
-    					excel.setYears(new DataFormatter().formatCellValue(currentCell));
+    					excel.setYears(new DataFormatter().formatCellValue((Cell) currentCell));
     				}
     				else if(cellIndex==6) { // months
-    					excel.setMonths(new DataFormatter().formatCellValue(currentCell));
+    					excel.setMonths(new DataFormatter().formatCellValue((Cell) currentCell));
 					} 
     				else if(cellIndex==7) { // value
-						excel.setValue(new DataFormatter().formatCellValue(currentCell));
+						excel.setValue(new DataFormatter().formatCellValue((Cell) currentCell));
 					}
 					else if(cellIndex==8) { // unit_value
-						excel.setUnit_value( new DataFormatter().formatCellValue(currentCell));
+						excel.setUnit_value( new DataFormatter().formatCellValue((Cell) currentCell));
 					}
 					else if(cellIndex==9) { // netweight
-						excel.setNetweight(new DataFormatter().formatCellValue(currentCell));
+						excel.setNetweight(new DataFormatter().formatCellValue((Cell) currentCell));
 					}
 					else if(cellIndex==10) { // unit_netweight
-						excel.setUnit_netweight(new DataFormatter().formatCellValue(currentCell));
+						excel.setUnit_netweight(new DataFormatter().formatCellValue((Cell) currentCell));
 
 					}
 					else if(cellIndex==11) { // source
-						excel.setSource(new DataFormatter().formatCellValue(currentCell));
+						excel.setSource(new DataFormatter().formatCellValue((Cell) currentCell));
 					}
     				cellIndex++;
     			}

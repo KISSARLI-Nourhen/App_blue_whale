@@ -20,7 +20,5 @@ public interface SourceService {
 	
 	public void updateSource(Source source);
 	
-	/*public Source findByImport_export(long id);
 	
-	public Source findByFaostat(long id);*/
 }

@@ -1,11 +1,15 @@
 package com.BDD.blue_whale.service;
 
+import java.util.List;
+import java.util.Optional;
+
 import javax.transaction.Transactional;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import com.BDD.blue_whale.entities.Department;
+
 import com.BDD.blue_whale.entities.Role;
 import com.BDD.blue_whale.entities.User;
 import com.BDD.blue_whale.repositories.DepartmentRepository;
@@ -21,70 +25,43 @@ public class UsersServiceImpl implements UsersService{
 	private UserRepository userRepository;
 	@Autowired
 	private RoleRepository roleRepository;
-	@Autowired
-	private DepartmentRepository departmentRepository;
-	/*@Autowired
-	private PasswordEncryptUtil passwordEncryptUtil;*/
+
 	
 	
 	@Override
-	public User saveUser(User user) {
+	public User addUser(User user) {
 		user.setActive(true);
-		
 		return userRepository.save(user);
 	}
-
-	@Override
-	public Role saveRole(Role role) {
-		return roleRepository.save(role);
-	}
-
-	@Override
-	public Department saveDepartment(Department department) {
-		
-		return departmentRepository.save(department);
-	}
-
-	@Override
-	public void addUsersToRole(String lastName, String roleName) {
-		Role role=roleRepository.findByRole(roleName);
-		User users=userRepository.findByLastName(lastName);
-		role.getUsers().add(users);
-		
-	}
-
-	@Override
-	public User findByLastName(String lastName) {
-		
-		return userRepository.findByLastName((new 
-				StringBuilder()).append("%").append(lastName).append("%").toString());
-	}
-
-	@Override
-	public User findByEmail(String email) {
-
-		return userRepository.findByEmail((new 
-				StringBuilder()).append("%").append(email).append("%").toString());
-	}
-
+	
 	@Override
 	public void updateUser(User user) {
 		userRepository.save(user);
 		
 	}
-
+	
 	@Override
-	public void updateRole(Role role) {
-		roleRepository.save(role);
-		
+	public void deleteUser(long user_id) {
+		userRepository.deleteById(user_id);
+	}
+	
+	@Override
+	public List<User> listUsers() {
+		return userRepository.findAll();
 	}
 
+	
 	@Override
-	public void updateDepartment(Department department) {
-		departmentRepository.save(department);
-		
+	public Optional<User> getUserById(long user_id) {
+		return userRepository.findById(user_id);
 	}
+	
+	
 
+
+	
+
+	
 
 
 

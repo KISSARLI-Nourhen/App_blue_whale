@@ -20,5 +20,5 @@ public interface VarietyService {
 	
 	public void updateVariety(Variety variety);
 	
-	/*public List<Variety> findByProduct(long product_id);*/
+	
 }

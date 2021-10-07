@@ -16,7 +16,6 @@ public interface Country_translationService {
 	
 	public Optional<Country_translation> getCountry_TranslationById(long country_translation_id);
 	
-	/*public List<Country_translation> findByCountry(long country_id);*/
 	
 	public void deleteCountry_translation(long country_translation_id);
 	

@@ -37,7 +37,7 @@ public class FileController {
 	@Autowired
 	private FileStorageService filestorageService;
 	
-	@PostMapping("/upload")
+	@PostMapping("/upload")//téléchargement du fichier dans le répertoire uploads
 	public ResponseEntity<ResponseMessage> uploadFile(@RequestParam("file") MultipartFile file){
 		String message ="";
 		try {
@@ -50,23 +50,22 @@ public class FileController {
 	    }
 	}
 	
-	//upload files with data refused or accepted
 	
-	
+	//charger les données dans la base de données
 	@PostMapping("/upload/resourcetradeearth")
 	public ResponseEntity<ResponseMessage> resourcetradeearth(@RequestParam("file") MultipartFile file) {
 		String message ="";
-		//String[] args = {};
 		
 			resourcetradeearth talendJob = new resourcetradeearth();
 			String resourcetradeearth="uploads\\\\\\\\"+ file.getOriginalFilename();//input file
 			String DataAccepted = "output_Data\\\\ressource_trade_earth_DataAccepted.xls";//output file with data accepted
 			String DataRefused ="output_Data\\\\ressource_trade_earth_DataRefused.xls";//output file with data refused
+			
 			String [] context=new String[] {"--context_param resource_file_resourcetradeearth="+resourcetradeearth,
 					"--context_param resource_file_ressourcetradeearthAccepted="+DataAccepted,
 					"--context_param resource_file_ressourcetradeearthRefused="+DataRefused};
 			//talendJob.runJob(context);
-			int exitCode = talendJob.runJobInTOS(context);
+			int exitCode = talendJob.runJobInTOS(context);//code retour après execution de talend
 			
 			if (exitCode == 0) {
 				message ="file :" + file.getOriginalFilename()+" uploaded to the database ";
@@ -95,7 +94,7 @@ public class FileController {
 		int exitCode1 = talendJobX.runJobInTOS(context);
 		
 
-		//jar for file with M
+		//jar for file with M (M : import)
 		comtradeM_CSV talendJobM = new comtradeM_CSV(); 
 		String resource_file_comtradeM="uploads\\\\\\\\"+ file.getOriginalFilename();
 		String DataAcceptedM = "output_Data\\\\ComtradeM_DataAccepted.csv";//output file with data accepted M
@@ -121,8 +120,6 @@ public class FileController {
 		
 		String message ="";
 		if(!file.getOriginalFilename().endsWith(".csv")) {
-			//String message ="";
-			//String[] args = {};
 			
 			//convert table with tableau croisee dynamique
 			faostat_tableau_croise_dynamique talendJob = new faostat_tableau_croise_dynamique();
@@ -181,6 +178,8 @@ public class FileController {
 	  public ResponseEntity<List<FileInfo>> getListFiles() {
 	    List<FileInfo> fileInfos = filestorageService.loadAll().map(path -> {
 	      String filename = path.getFileName().toString();
+	      
+	      //url pour pouvoir télécharger le fichier
 	      String url = MvcUriComponentsBuilder
 	          .fromMethodName(FileController.class, "getFile", path.getFileName().toString()).build().toString();
 
@@ -192,16 +191,17 @@ public class FileController {
 	 
 	 @GetMapping("/files/{filename:.+}")
 	  @ResponseBody
-	  public ResponseEntity<Resource> getFile(@PathVariable String filename) {
+	  public ResponseEntity<Resource> getFile(@PathVariable String filename) {//controller pour télécharger un fichier
 	    Resource file = filestorageService.load(filename);
 	    return ResponseEntity.ok()
 	        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);
 	  }
 	 
 	 @GetMapping("/files/outputData")
-	  public ResponseEntity<List<FileInfo>> getListOutPutData() {
+	  public ResponseEntity<List<FileInfo>> getListOutPutData() {//récupérer tous les fichiers output
 	    List<FileInfo> fileInfos = filestorageService.loadAllOutPutData().map(path -> {
 	      String filename = path.getFileName().toString();
+	      //rendre le fichier de sortie comme url pour le télécharger 
 	      String url = MvcUriComponentsBuilder
 	          .fromMethodName(FileController.class, "getFileOutputData", path.getFileName().toString()).build().toString();
 
@@ -213,7 +213,7 @@ public class FileController {
 	  
 	  @GetMapping("/file/{filename:.+}")
 	  @ResponseBody
-	  public ResponseEntity<Resource> getFileOutputData(@PathVariable String filename) {
+	  public ResponseEntity<Resource> getFileOutputData(@PathVariable String filename) {//télécharger le fichier
 	    Resource file = filestorageService.loadOutPutData(filename);
 	    return ResponseEntity.ok()
 	        .header(HttpHeaders.CONTENT_DISPOSITION, "attachment; filename=\"" + file.getFilename() + "\"").body(file);

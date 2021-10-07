@@ -49,23 +49,7 @@ public class Import_exportServiceImpl implements Import_exportService{
 		
 	}
 
-	/*@Override
-	public List<Import_export> findByCountry_expo(long country_exporter_id) {
-		
-		return Import_exportRepository.findByCountry_country_exporter_id(country_exporter_id);
-	}
-
-	@Override
-	public List<Import_export> findByCountry_impo(long country_importer_id) {
-		
-		return Import_exportRepository.findByCountry_country_importer_id(country_importer_id);
-	}
-
-	@Override
-	public List<Import_export> findByProduct(long product_id) {
-		
-		return Import_exportRepository.findByProduct_product_id(product_id);
-	}*/
+	
 
 	
 	

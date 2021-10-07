@@ -49,10 +49,5 @@ public class VarietyServiceImpl implements VarietyService{
 		
 	}
 
-	/*@Override
-	public List<Variety> findByProduct(long product_id) {
-		
-		return VarietyRepository.findByProduct_product_id(product_id);
-	}*/
 	
 }

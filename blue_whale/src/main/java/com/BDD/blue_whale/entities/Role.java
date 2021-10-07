@@ -6,6 +6,8 @@ import java.util.Collection;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.EnumType;
+import javax.persistence.Enumerated;
 import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
@@ -22,16 +24,18 @@ import lombok.ToString;
 @Data @NoArgsConstructor @AllArgsConstructor @ToString
 @Table(name="role")
 public class Role implements Serializable{
-	
-	/**
-	 * 
-	 */
 	private static final long serialVersionUID = 1L;
+	
 	@Id @GeneratedValue(strategy = GenerationType.IDENTITY)
 	private Long role_id;
-	@Column(unique =true)
-	private String role;
 	
-	@ManyToMany(fetch = FetchType.EAGER)
-	private Collection<User> users=new ArrayList<>();
+	@Enumerated(EnumType.STRING)
+	@Column(length = 20)
+	private ERole name;
+	
+	/*@Column(unique = true)
+	private String role;*/
+	
+	/*@ManyToMany(fetch = FetchType.EAGER)
+	private Collection<User> users=new ArrayList<>();*/
 }

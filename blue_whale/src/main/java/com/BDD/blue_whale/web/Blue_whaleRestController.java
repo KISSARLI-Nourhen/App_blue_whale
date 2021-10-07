@@ -27,20 +27,26 @@ import org.springframework.web.bind.annotation.RestController;
 
 import com.BDD.blue_whale.entities.Country;
 import com.BDD.blue_whale.entities.Country_translation;
+import com.BDD.blue_whale.entities.Department;
 import com.BDD.blue_whale.entities.Faostat;
 import com.BDD.blue_whale.entities.Import_export;
 import com.BDD.blue_whale.entities.Product;
 import com.BDD.blue_whale.entities.Product_translation;
+import com.BDD.blue_whale.entities.Role;
 import com.BDD.blue_whale.entities.Source;
+import com.BDD.blue_whale.entities.User;
 import com.BDD.blue_whale.entities.World_language;
 import com.BDD.blue_whale.repositories.FaostatRepository;
 import com.BDD.blue_whale.repositories.Import_exportRepository;
 import com.BDD.blue_whale.service.CountryService;
 import com.BDD.blue_whale.service.Country_translationService;
+import com.BDD.blue_whale.service.DepartmentService;
 import com.BDD.blue_whale.service.FaostatService;
 import com.BDD.blue_whale.service.ProductService;
 import com.BDD.blue_whale.service.Product_translationService;
+import com.BDD.blue_whale.service.RoleService;
 import com.BDD.blue_whale.service.SourceService;
+import com.BDD.blue_whale.service.UsersService;
 import com.BDD.blue_whale.service.World_languageService;
 
 
@@ -67,7 +73,12 @@ public class Blue_whaleRestController {
 	private Country_translationService country_translationService;
 	@Autowired
 	private FaostatService faostatService;
-	
+	@Autowired
+	private DepartmentService departmentService;
+	@Autowired
+	private UsersService userService;
+	@Autowired
+	private RoleService roleService;
 	
 	
 
@@ -212,17 +223,6 @@ public class Blue_whaleRestController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
-	//import export
-	@GetMapping("/listimport_exports")
-	public List<Import_export> import_exports(){
-		return import_exportRepository.findAll();
-	}
-	
-	@GetMapping("/listfaostats")
-	public List<Faostat> faostats(){
-		return faostatRepository.findAll();
-	}
-	
 	
 	/**********************************************************************************
 	 * * word_language
@@ -262,6 +262,43 @@ public class Blue_whaleRestController {
 		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
+	
+	/**********************************************************************************
+	 * * department
+	 **********************************************************************************/
+	
+	@GetMapping("/listdepartments")
+	public ResponseEntity<List<Department>> departments(){
+		List<Department> departments = departmentService.listDepartment();
+		return new ResponseEntity<>(departments, HttpStatus.OK);
+	}
+	
+	@GetMapping("/listdepartments/{id}")
+	public ResponseEntity<Optional<Department>> getDepartmentById(@PathVariable("id") Long id){
+		Optional<Department> department =departmentService.getDepartmentById(id);
+		return new ResponseEntity<Optional<Department>>(department,HttpStatus.OK);
+	}
+	
+	@PostMapping("/addDepartment")
+	public ResponseEntity<Department> addDepartment(@RequestBody Department department) {
+		departmentService.addDepartment(department);
+		return new ResponseEntity<Department>(HttpStatus.CREATED);
+	}
+	
+	@PutMapping("/updateDepartment")
+	public ResponseEntity<Department> updateDepartment(@RequestBody Department department) {
+		departmentService.updateDepartment(department);
+		return new ResponseEntity<Department>(HttpStatus.OK);
+	}
+	
+	@DeleteMapping("/deletedepartment/{id}")
+	public ResponseEntity<?> deleteDepartment(@PathVariable("id") long department_id){
+		departmentService.deleteDepartment(department_id);
+		return new ResponseEntity<>(HttpStatus.OK);
+	}
+	
+	
+	
 	/**********************************************************************************
 	 * * Faostat
 	 **********************************************************************************/
@@ -280,7 +317,7 @@ public class Blue_whaleRestController {
 	@GetMapping("/faostats")
 	public ResponseEntity<Map<String, Object>> getAllFaostatsPage(
 			@RequestParam(defaultValue = "0") int page,
-			@RequestParam(defaultValue = "3") int size,
+			@RequestParam(defaultValue = "20") int size,
 			@RequestParam(defaultValue = "id, desc") String[] sort){
 		
 		try {
@@ -323,6 +360,118 @@ public class Blue_whaleRestController {
 		}
 		
 	}
-	
+	/**********************************************************************************
+	 * * import export
+	 **********************************************************************************/
+				
+		@GetMapping("/import_exports")
+		public ResponseEntity<Map<String, Object>> getAllimport_exportsPage(
+				@RequestParam(defaultValue = "0") int page,
+				@RequestParam(defaultValue = "20") int size,
+				@RequestParam(defaultValue = "id, desc") String[] sort){
+			
+			try {
+				List<Order> orders = new ArrayList<Order>();
+				
+				if(sort[0].contains(",")) {
+					// will sort more than 2 fields sortOrder="field, direction"
+						for(String sortOrder : sort) {
+							String[] _sort = sortOrder.split(",");
+							orders.add(new Order(getSortDirection(_sort[1]), _sort[0]));
+						} 
+					} else {
+				        // sort=[field, direction]
+				        orders.add(new Order(getSortDirection(sort[1]), sort[0]));
+				      }
+				
+				List<Import_export> Import_exports = new ArrayList<Import_export>();
+				Pageable pagingSort = PageRequest.of(page, size, Sort.by(orders));
+
+			      Page<Import_export> pageImport_exports;
+			     
+			      pageImport_exports = import_exportRepository.findAll(pagingSort);
+			    
+			      Import_exports = pageImport_exports.getContent();
+
+			      Map<String, Object> response = new HashMap<>();
+			      response.put("Import_exports", Import_exports);
+			      response.put("currentPage", pageImport_exports.getNumber());
+			      response.put("totalItems", pageImport_exports.getTotalElements());
+			      response.put("totalPages", pageImport_exports.getTotalPages());
+
+			      return new ResponseEntity<>(response, HttpStatus.OK);
+				
+			} catch (Exception e) {
+				return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+			}		
+			
+		}
+		
+		
+		/**********************************************************************************
+		 * * users
+		 **********************************************************************************/
+		
+		@GetMapping("/listUsers")
+		public ResponseEntity<List<User>> users(){
+			List<User> users = userService.listUsers();
+			return new ResponseEntity<>(users, HttpStatus.OK);
+		}
+		
+		@GetMapping("/listUsers/{id}")
+		public ResponseEntity<Optional<User>> getUserById(@PathVariable("id") Long id){
+			Optional<User> user =userService.getUserById(id);
+			return new ResponseEntity<Optional<User>>(user,HttpStatus.OK);
+		}
+		
+		@PostMapping("/addUser")
+		public ResponseEntity<User> addUser(@RequestBody User user) {
+			userService.addUser(user);
+			return new ResponseEntity<User>(HttpStatus.CREATED);
+		}
+		
+		@PutMapping("/updateUser")
+		public ResponseEntity<User> updateUser(@RequestBody User user) {
+			userService.updateUser(user);
+			return new ResponseEntity<User>(HttpStatus.OK);
+		}
+		
+		@DeleteMapping("/deleteUser/{id}")
+		public ResponseEntity<?> deleteUser(@PathVariable("id") long user_id){
+			userService.deleteUser(user_id);
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
+		
+		
+		/**********************************************************************************
+		 * * role
+		 **********************************************************************************/
+		
+		@GetMapping("/listRoles")
+		public ResponseEntity<List<Role>> roles(){
+			List<Role> roles = roleService.listRoles();
+			return new ResponseEntity<>(roles, HttpStatus.OK);
+		}
+		
+		@PostMapping("/addRole")
+		public ResponseEntity<Role> addRole(@RequestBody Role role) {
+			roleService.addRole(role);
+			return new ResponseEntity<Role>(HttpStatus.CREATED);
+		}
+		
+		@PutMapping("/updateRole")
+		public ResponseEntity<Role> updateRole(@RequestBody Role role) {
+			roleService.updateRole(role);
+			return new ResponseEntity<Role>(HttpStatus.OK);
+		}
+		
+		@DeleteMapping("/deleteRole/{id}")
+		public ResponseEntity<?> deleteRole(@PathVariable("id") long user_id){
+			roleService.deleteRole(user_id);
+			return new ResponseEntity<>(HttpStatus.OK);
+		}
+		
+
+		
 	
 }

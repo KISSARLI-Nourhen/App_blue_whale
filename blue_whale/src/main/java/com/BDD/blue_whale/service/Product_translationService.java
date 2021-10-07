@@ -19,7 +19,6 @@ public interface Product_translationService {
 	
 	public void deleteProduct_translation(long product_translations_id);
 	
-	/*public List<Product_translation> findByProduct(long product_id);*/
 	
 	public void updateProduct_translation(Product_translation product_translation);
 

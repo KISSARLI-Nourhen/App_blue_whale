@@ -21,7 +21,5 @@ public interface ProductService {
 	
 	public void updateProduct(Product product);
 
-	//List<ProductDTO> getproducts();
 	
-	//public void addProductToTraduction(Long product_id, Long pTraduction_id);
 }

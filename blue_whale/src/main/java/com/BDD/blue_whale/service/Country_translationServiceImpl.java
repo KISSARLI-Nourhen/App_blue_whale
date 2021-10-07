@@ -37,12 +37,7 @@ public class Country_translationServiceImpl implements Country_translationServic
 		return country_translationRepository.findById(country_translation_id);
 	}
 
-	/*@Override
-	public List<Country_translation> findByCountry(long country_id) {
-		
-		return country_translationRepository.findBycountry_id(country_id);
-	}*/
-
+	
 	@Override
 	public void deleteCountry_translation(long country_translation_id) {
 		

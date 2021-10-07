@@ -20,9 +20,6 @@ public interface Import_exportService {
 	
 	public void updateImport_export(Import_export import_export);
 	
-	/*public List<Import_export> findByCountry_expo(long country_exporter_id);
-	public List<Import_export> findByCountry_impo(long country_importer_id);
 	
-	public List<Import_export> findByProduct(long product_id);*/
 	
 }
